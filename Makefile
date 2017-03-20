@@ -1,4 +1,13 @@
-CF_ALL          = -g -Wall -Wextra -Werror -pedantic
+CF_ALL          = -Wno-missing-braces -Wextra -Wno-missing-field-initializers -Wformat=2 \
+		  -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith \
+		  -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline \
+		  -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code \
+		  -Wlogical-op -Wfloat-equal -Wstrict-aliasing=2 -Wredundant-decls \
+		  -Wold-style-definition -Werror -Wall \
+		  -ggdb3 \
+		  -O0 \
+		  -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
+
 LF_ALL          =
 LL_ALL          =
 
