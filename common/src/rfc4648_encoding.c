@@ -22,8 +22,8 @@ static const char RFC4648_PADDING = '=';
  * base16 uses an index size of 4 bits, to produce 2 output
  * characters for every 8 bits of input.
  */
-static uint8_t BASE16_OUTPUT_GROUP_BITS = 4;
-static uint8_t BASE16_INPUT_GROUP_BITS = 8;
+static const uint8_t BASE16_OUTPUT_GROUP_BITS = 4;
+static const uint8_t BASE16_INPUT_GROUP_BITS = 8;
 
 static const char *BASE16_ALPHABET = "0123456789ABCDEF";
 static char BASE16_DECODE_TABLE[256];
@@ -32,8 +32,8 @@ static char BASE16_DECODE_TABLE[256];
  * base32 uses an index size of 5 bits, to produce 8 output
  * characters for every 40 bits of input.
  */
-static uint8_t BASE32_OUTPUT_GROUP_BITS = 5;
-static uint8_t BASE32_INPUT_GROUP_BITS = 40;
+static const uint8_t BASE32_OUTPUT_GROUP_BITS = 5;
+static const uint8_t BASE32_INPUT_GROUP_BITS = 40;
 
 static const char *BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 static char BASE32_DECODE_TABLE[256];
@@ -48,8 +48,8 @@ static char BASE32HEX_DECODE_TABLE[256];
  * base64 uses an index size of 6 bits, to produce 4 output
  * characters for every 24 bits of input.
  */
-static uint8_t BASE64_OUTPUT_GROUP_BITS = 6;
-static uint8_t BASE64_INPUT_GROUP_BITS = 24;
+static const uint8_t BASE64_OUTPUT_GROUP_BITS = 6;
+static const uint8_t BASE64_INPUT_GROUP_BITS = 24;
 
 static const char *BASE64_ALPHABET =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -87,8 +87,9 @@ static void rfc4648_build_decode_table(const char *alphabet, char *decode_table,
 }
 
 static size_t rfc4648_decode(const char *input, const size_t input_size,
-			     uint8_t **output, uint8_t input_group_bits,
-			     uint8_t output_group_bits, const char *decode_table)
+			     uint8_t **output, const uint8_t input_group_bits,
+			     const uint8_t output_group_bits,
+			     const char *decode_table)
 {
 	assert(input_group_bits <= 64);
 	assert(input_group_bits % 8 == 0);
@@ -144,8 +145,8 @@ static size_t rfc4648_decode(const char *input, const size_t input_size,
 }
 
 static size_t rfc4648_decoded_size(const size_t input_size,
-				   uint8_t input_group_bits,
-				   uint8_t output_group_bits)
+				   const uint8_t input_group_bits,
+				   const uint8_t output_group_bits)
 {
 	uint8_t input_group_bytes = input_group_bits / 8;
 	uint8_t output_groups = input_group_bits / output_group_bits;
@@ -154,8 +155,8 @@ static size_t rfc4648_decoded_size(const size_t input_size,
 }
 
 static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
-			     char **output, uint8_t input_group_bits,
-			     uint8_t output_group_bits, const char *alphabet)
+			     char **output, const uint8_t input_group_bits,
+			     const uint8_t output_group_bits, const char *alphabet)
 {
 	// Only allow input groups that can be stored
 	// in a 64 bit int
@@ -224,8 +225,8 @@ static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
 }
 
 static size_t rfc4648_encoded_size(const size_t input_size,
-				   uint8_t input_group_bits,
-				   uint8_t output_group_bits)
+				   const uint8_t input_group_bits,
+				   const uint8_t output_group_bits)
 {
 	uint8_t output_groups = input_group_bits / output_group_bits;
 	uint8_t input_group_bytes = input_group_bits / 8;
