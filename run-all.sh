@@ -1,10 +1,5 @@
 #!/bin/sh
 
-CHALLENGES=(
-	"set1/challenge1/challenge1"
-	"set1/challenge2/challenge2"
-)
-
 color() {
 	printf '\033[%sm%s\033[m\n' "$@"
 }
@@ -12,15 +7,9 @@ color() {
 FAILED_CHALLENGES=0
 PASSED_CHALLENGES=0
 
-for challenge in "${CHALLENGES[@]}";
+for challenge in $(find . -type f -executable -name 'challenge-solution');
 do
 	echo -e "\n"
-
-	if [ ! -x "$challenge" ];
-	then
-		echo "Error: $challenge is not executable\n"
-		continue
-	fi
 
 	color '33' "Running: $challenge"
 	color '33' '-------------------'

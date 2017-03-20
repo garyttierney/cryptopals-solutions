@@ -2,7 +2,7 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-TGTS_$(d)	:= $(d)/challenge1
+TGTS_$(d)	:= $(d)/challenge-solution
 DEPS_$(d)	:= $(TGTS_$(d):%=%.d)
 
 TGT_BIN		:= $(TGT_BIN) $(TGTS_$(d))
