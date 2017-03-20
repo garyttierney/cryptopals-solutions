@@ -7,7 +7,7 @@ color() {
 FAILED_CHALLENGES=0
 PASSED_CHALLENGES=0
 
-for challenge in $(find . -type f -executable -name 'challenge-solution');
+for challenge in $(find . -type f -executable -name 'challenge-solution' | sort);
 do
 	echo -e "\n"
 
