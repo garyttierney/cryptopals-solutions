@@ -20,8 +20,8 @@ char *buffer_to_string(const uint8_t *buffer, const size_t size)
 
 int main(int argc, char *argv[])
 {
-	(void) argc;
-	(void) argv;
+	(void)argc;
+	(void)argv;
 
 	int ret = 1;
 
@@ -30,42 +30,48 @@ int main(int argc, char *argv[])
 	const char *expected_xor_result = "746865206b696420646f6e277420706c6179";
 
 	uint8_t *a_decoded = NULL;
+	size_t a_decoded_len = 0;
+
 	uint8_t *b_decoded = NULL;
+	size_t b_decoded_len = 0;
+
 	uint8_t *xor_result = NULL;
 	char *xor_result_string = NULL;
 	char *xor_result_encoded = NULL;
+	size_t xor_result_encoded_len = 0;
 
-	size_t a_size =
-	    cpal_base16_decode(a_encoded, strlen(a_encoded), &a_decoded);
-	if (a_size == 0) {
+	if (cpal_base16_decode(a_encoded, strlen(a_encoded), &a_decoded,
+			       &a_decoded_len) < 0) {
 		goto exit;
 	}
 
-	size_t b_size =
-	    cpal_base16_decode(b_encoded, strlen(b_encoded), &b_decoded);
-	if (b_size == 0) {
+	if (cpal_base16_decode(b_encoded, strlen(b_encoded), &b_decoded,
+			       &b_decoded_len) < 0) {
 		goto exit;
 	}
 
-	if (a_size != b_size) {
+	if (a_decoded_len != b_decoded_len) {
 		goto exit;
 	}
 
-	if (cpal_cipher_xor_fixed(a_size, a_decoded, b_decoded, &xor_result) != 0) {
+	if (cpal_cipher_xor_fixed(a_decoded_len, a_decoded, b_decoded,
+				  &xor_result) != 0) {
 		goto exit;
 	}
 
-	xor_result_string = buffer_to_string(xor_result, a_size);
+	xor_result_string = buffer_to_string(xor_result, a_decoded_len);
 	if (xor_result_string == NULL) {
 		goto exit;
 	}
 
-	if (cpal_base16_encode(xor_result, a_size, &xor_result_encoded) == 0) {
+	if (cpal_base16_encode(xor_result, a_decoded_len, &xor_result_encoded,
+			       &xor_result_encoded_len) < 0) {
 		goto exit;
 	}
-	
+
 	printf("xor_result=%s\n", xor_result_string);
-	printf("xor_result_encoded=%s,expected=%s\n", xor_result_encoded, expected_xor_result);
+	printf("xor_result_encoded=%s,expected=%s\n", xor_result_encoded,
+	       expected_xor_result);
 	ret = strcasecmp(xor_result_encoded, expected_xor_result);
 exit:
 	free(a_decoded);

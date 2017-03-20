@@ -86,15 +86,16 @@ static void rfc4648_build_decode_table(const char *alphabet, char *decode_table,
 	}
 }
 
-static size_t rfc4648_decode(const char *input, const size_t input_size,
-			     uint8_t **output, const uint8_t input_group_bits,
-			     const uint8_t output_group_bits,
-			     const char *decode_table)
+static int rfc4648_decode(const char *input, const size_t input_size,
+			  uint8_t **output, size_t *output_length,
+			  const uint8_t input_group_bits,
+			  const uint8_t output_group_bits, const char *decode_table)
 {
 	assert(input_group_bits <= 64);
 	assert(input_group_bits % 8 == 0);
 	assert(output_group_bits < input_group_bits);
 
+	int err = -1;
 	int output_groups = input_group_bits / output_group_bits;
 
 	if (input == NULL || (input_size % output_groups) != 0) {
@@ -126,9 +127,14 @@ static size_t rfc4648_decode(const char *input, const size_t input_size,
 
 		while (output_group_offset >= 0) {
 			char input_value = input[input_pos++];
-			uint8_t value = input_value != RFC4648_PADDING
-					    ? decode_table[(int)input_value]
-					    : 0;
+			char value = input_value != RFC4648_PADDING
+					 ? decode_table[(int)input_value]
+					 : 0;
+
+			if (value == -1) {
+				err = -1;
+				goto err;
+			}
 
 			encoded += value << output_group_offset;
 			output_group_offset -= output_group_bits;
@@ -141,7 +147,11 @@ static size_t rfc4648_decode(const char *input, const size_t input_size,
 	}
 
 	*output = output_tmp;
-	return output_size;
+	*output_length = output_size;
+	return 0;
+err:
+	free(output_tmp);
+	return err;
 }
 
 static size_t rfc4648_decoded_size(const size_t input_size,
@@ -154,9 +164,10 @@ static size_t rfc4648_decoded_size(const size_t input_size,
 	return input_size / output_groups * input_group_bytes;
 }
 
-static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
-			     char **output, const uint8_t input_group_bits,
-			     const uint8_t output_group_bits, const char *alphabet)
+static int rfc4648_encode(const uint8_t *input, const size_t input_size,
+			  char **output, size_t *output_length,
+			  const uint8_t input_group_bits,
+			  const uint8_t output_group_bits, const char *alphabet)
 {
 	// Only allow input groups that can be stored
 	// in a 64 bit int
@@ -184,7 +195,6 @@ static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
 	while (input_pos < input_size) {
 		int input_group_offset = input_group_bits;
 		int output_group_offset = (output_groups - 1) * output_group_bits;
-		;
 		int padded_output_groups = -1;
 
 		uint64_t encoded = 0;
@@ -221,7 +231,8 @@ static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
 
 	*output_buffer++ = '\0';
 	*output = output_tmp;
-	return output_size;
+	*output_length = output_size;
+	return 0;
 }
 
 static size_t rfc4648_encoded_size(const size_t input_size,
@@ -244,81 +255,91 @@ static int rfc4648_valid_alphabet(const char *alphabet, uint8_t output_group_bit
 }
 
 size_t cpal_base16_encode(const uint8_t *input, const size_t input_size,
-			  char **output)
+			  char **output, size_t *output_size)
 {
-	return rfc4648_encode(input, input_size, output, BASE16_INPUT_GROUP_BITS,
-			      BASE16_OUTPUT_GROUP_BITS, BASE16_ALPHABET);
+	return rfc4648_encode(input, input_size, output, output_size,
+			      BASE16_INPUT_GROUP_BITS, BASE16_OUTPUT_GROUP_BITS,
+			      BASE16_ALPHABET);
 }
 
 size_t cpal_base16_decode(const char *input, const size_t input_size,
-			  uint8_t **output)
+			  uint8_t **output, size_t *output_size)
 {
 	INITIALIZE_DECODE_TABLE(BASE16_ALPHABET, BASE16_DECODE_TABLE, 1);
 
-	return rfc4648_decode(input, input_size, output, BASE16_INPUT_GROUP_BITS,
-			      BASE16_OUTPUT_GROUP_BITS, BASE16_DECODE_TABLE);
+	return rfc4648_decode(input, input_size, output, output_size,
+			      BASE16_INPUT_GROUP_BITS, BASE16_OUTPUT_GROUP_BITS,
+			      BASE16_DECODE_TABLE);
 }
 
 size_t cpal_base32_encode(const uint8_t *input, const size_t input_size,
-			  char **output)
+			  char **output, size_t *output_size)
 {
-	return rfc4648_encode(input, input_size, output, BASE32_INPUT_GROUP_BITS,
-			      BASE32_OUTPUT_GROUP_BITS, BASE32_ALPHABET);
+	return rfc4648_encode(input, input_size, output, output_size,
+			      BASE32_INPUT_GROUP_BITS, BASE32_OUTPUT_GROUP_BITS,
+			      BASE32_ALPHABET);
 }
 
 size_t cpal_base32_decode(const char *input, const size_t input_size,
-			  uint8_t **output)
+			  uint8_t **output, size_t *output_size)
 {
 	INITIALIZE_DECODE_TABLE(BASE32_ALPHABET, BASE32_DECODE_TABLE, 0);
 
-	return rfc4648_decode(input, input_size, output, BASE32_INPUT_GROUP_BITS,
-			      BASE32_OUTPUT_GROUP_BITS, BASE32_DECODE_TABLE);
+	return rfc4648_decode(input, input_size, output, output_size,
+			      BASE32_INPUT_GROUP_BITS, BASE32_OUTPUT_GROUP_BITS,
+			      BASE32_DECODE_TABLE);
 }
 
 size_t cpal_base32hex_encode(const uint8_t *input, const size_t input_size,
-			     char **output)
+			     char **output, size_t *output_size)
 {
-	return rfc4648_encode(input, input_size, output, BASE32_INPUT_GROUP_BITS,
-			      BASE32_OUTPUT_GROUP_BITS, BASE32HEX_ALPHABET);
+	return rfc4648_encode(input, input_size, output, output_size,
+			      BASE32_INPUT_GROUP_BITS, BASE32_OUTPUT_GROUP_BITS,
+			      BASE32HEX_ALPHABET);
 }
 
 size_t cpal_base32hex_decode(const char *input, const size_t input_size,
-			     uint8_t **output)
+			     uint8_t **output, size_t *output_size)
 {
 	INITIALIZE_DECODE_TABLE(BASE32HEX_ALPHABET, BASE32HEX_DECODE_TABLE, 1);
 
-	return rfc4648_decode(input, input_size, output, BASE32_INPUT_GROUP_BITS,
-			      BASE32_OUTPUT_GROUP_BITS, BASE32HEX_DECODE_TABLE);
+	return rfc4648_decode(input, input_size, output, output_size,
+			      BASE32_INPUT_GROUP_BITS, BASE32_OUTPUT_GROUP_BITS,
+			      BASE32HEX_DECODE_TABLE);
 }
 
 size_t cpal_base64_encode(const uint8_t *input, const size_t input_size,
-			  char **output)
+			  char **output, size_t *output_size)
 {
-	return rfc4648_encode(input, input_size, output, BASE64_INPUT_GROUP_BITS,
-			      BASE64_OUTPUT_GROUP_BITS, BASE64_ALPHABET);
+	return rfc4648_encode(input, input_size, output, output_size,
+			      BASE64_INPUT_GROUP_BITS, BASE64_OUTPUT_GROUP_BITS,
+			      BASE64_ALPHABET);
 }
 
 size_t cpal_base64_decode(const char *input, const size_t input_size,
-			  uint8_t **output)
+			  uint8_t **output, size_t *output_size)
 {
 	INITIALIZE_DECODE_TABLE(BASE64_ALPHABET, BASE64_DECODE_TABLE, 0);
 
-	return rfc4648_decode(input, input_size, output, BASE64_INPUT_GROUP_BITS,
-			      BASE64_OUTPUT_GROUP_BITS, BASE64_DECODE_TABLE);
+	return rfc4648_decode(input, input_size, output, output_size,
+			      BASE64_INPUT_GROUP_BITS, BASE64_OUTPUT_GROUP_BITS,
+			      BASE64_DECODE_TABLE);
 }
 
 size_t cpal_base64safe_encode(const uint8_t *input, const size_t input_size,
-			      char **output)
+			      char **output, size_t *output_size)
 {
-	return rfc4648_encode(input, input_size, output, BASE64_INPUT_GROUP_BITS,
-			      BASE64_OUTPUT_GROUP_BITS, BASE64SAFE_ALPHABET);
+	return rfc4648_encode(input, input_size, output, output_size,
+			      BASE64_INPUT_GROUP_BITS, BASE64_OUTPUT_GROUP_BITS,
+			      BASE64SAFE_ALPHABET);
 }
 
 size_t cpal_base64safe_decode(const char *input, const size_t input_size,
-			      uint8_t **output)
+			      uint8_t **output, size_t *output_size)
 {
 	INITIALIZE_DECODE_TABLE(BASE64SAFE_ALPHABET, BASE64SAFE_DECODE_TABLE, 0);
 
-	return rfc4648_decode(input, input_size, output, BASE64_INPUT_GROUP_BITS,
-			      BASE64_OUTPUT_GROUP_BITS, BASE64SAFE_DECODE_TABLE);
+	return rfc4648_decode(input, input_size, output, output_size,
+			      BASE64_INPUT_GROUP_BITS, BASE64_OUTPUT_GROUP_BITS,
+			      BASE64SAFE_DECODE_TABLE);
 }

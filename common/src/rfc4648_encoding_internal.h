@@ -45,10 +45,11 @@ static void rfc4648_build_decode_table(const char *alphabet, char *decode_table,
  * @return A positive result indiciating the length of the decoded data, or a
  * negated error code.
  */
-static size_t rfc4648_decode(const char *input, const size_t input_size,
-			     uint8_t **output, const uint8_t input_group_bits,
-			     const uint8_t output_group_bits,
-			     const char *decode_table);
+static int rfc4648_decode(const char *input, const size_t input_size,
+			  uint8_t **output, size_t *output_size,
+			  const uint8_t input_group_bits,
+			  const uint8_t output_group_bits,
+			  const char *decode_table);
 
 /**
  * Calculate the expected size for the decoded data with the given @input_size
@@ -83,9 +84,10 @@ static size_t rfc4648_decoded_size(const size_t input_size,
  * @return A positive result indiciating the length of the encoded data, or a
  * negated error code.
  */
-static size_t rfc4648_encode(const uint8_t *input, const size_t input_size,
-			     char **output, const uint8_t input_group_bits,
-			     const uint8_t output_group_bits, const char *alphabet);
+static int rfc4648_encode(const uint8_t *input, const size_t input_size,
+			  char **output, size_t *output_size,
+			  const uint8_t input_group_bits,
+			  const uint8_t output_group_bits, const char *alphabet);
 
 /**
  * Calculate the expected size for an encoded buffer of with the given
