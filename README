@@ -1,0 +1,5 @@
+Solutions to the Matasano Cryptopals challenges (https://cryptopals.com/).
+
+To build the solutions running `make` is all that is required.  Running the
+'run-all' make target will run all of the challenges and report the number of
+successful results.
