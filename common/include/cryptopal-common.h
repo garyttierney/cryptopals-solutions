@@ -28,4 +28,7 @@ size_t cpal_base64safe_decode(const char *input, const size_t input_size,
 size_t cpal_base64safe_encode(const uint8_t *input, const size_t input_size,
 			      char **output);
 
+int cpal_cipher_xor_fixed(const size_t len, const uint8_t *a, const uint8_t *b,
+			  uint8_t **output);
+
 #endif

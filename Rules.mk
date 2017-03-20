@@ -25,7 +25,7 @@ clean:
 		rm -f $(CLEAN)
 
 .PHONY:		run-all
-run-all: ./run-all.sh
+run-all: targets ./run-all.sh
 	$(SH) ./run-all.sh
 
 .SECONDARY:	$(CLEAN)

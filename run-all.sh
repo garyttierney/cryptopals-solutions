@@ -1,7 +1,8 @@
 #!/bin/sh
 
 CHALLENGES=(
-	set1/challenge1/challenge1
+	"set1/challenge1/challenge1"
+	"set1/challenge2/challenge2"
 )
 
 color() {
@@ -11,8 +12,10 @@ color() {
 FAILED_CHALLENGES=0
 PASSED_CHALLENGES=0
 
-for challenge in $CHALLENGES;
+for challenge in "${CHALLENGES[@]}";
 do
+	echo -e "\n"
+
 	if [ ! -x "$challenge" ];
 	then
 		echo "Error: $challenge is not executable\n"
