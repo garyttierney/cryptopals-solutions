@@ -4,3 +4,6 @@
 *.swp
 *.d
 .gdb_history
+
+/tags
+/set*/challenge*/challenge-solution
