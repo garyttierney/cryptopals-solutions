@@ -73,6 +73,13 @@ double cpal_analysis_bhattacharyya_score(const double table[256],
 					 const uint8_t *decrypted,
 					 const size_t decrypted_len);
 
+/**
+ * Initialize a probability distribution table for the English language.
+ *
+ * @table The probabilitiy distribution table to initialize.
+ */
+void cpal_analysis_init_english_probabilities(double table[256]);
+
 int cpal_base16_decode(const char *input, size_t input_size, uint8_t **output,
 		       size_t *output_size);
 int cpal_base16_encode(const uint8_t *input, const size_t input_size, char **output,

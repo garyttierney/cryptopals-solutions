@@ -5,53 +5,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#define LETTER(letter, freq)                                                       \
-	ENGLISH_FREQ_TABLE[(int)letter] = freq;                                    \
-	ENGLISH_FREQ_TABLE[(int)letter - 32] = freq;
-
-#define CHAR(ch, freq) ENGLISH_FREQ_TABLE[(int)ch] = freq;
-
 static double ENGLISH_FREQ_TABLE[256];
-
-static void initialize_english_freq_table(void)
-{
-	for (size_t i = 0; i < 256; i++) {
-		ENGLISH_FREQ_TABLE[i] = 0.0;
-	}
-
-	/*
-	 * According to wikipedia, spaces are slightly more frequent than the
-	 * letter 'e' in English sentences.  Treat spaces as equivalent to the
-	 * letter 'e' for the sake of correctly sorting the decrypted ciphertexts.
-	 */
-	CHAR(' ', 0.1270)
-	LETTER('a', 0.08167)
-	LETTER('b', 0.01492)
-	LETTER('c', 0.02782)
-	LETTER('d', 0.04253)
-	LETTER('e', 0.1270)
-	LETTER('f', 0.02228)
-	LETTER('g', 0.02015)
-	LETTER('h', 0.06094)
-	LETTER('i', 0.06966)
-	LETTER('j', 0.00153)
-	LETTER('k', 0.00772)
-	LETTER('l', 0.04025)
-	LETTER('m', 0.02406)
-	LETTER('n', 0.06749)
-	LETTER('o', 0.07507)
-	LETTER('p', 0.01929)
-	LETTER('q', 0.00095)
-	LETTER('r', 0.05987)
-	LETTER('s', 0.06327)
-	LETTER('t', 0.09056)
-	LETTER('u', 0.02758)
-	LETTER('v', 0.00978)
-	LETTER('w', 0.02360)
-	LETTER('x', 0.00150)
-	LETTER('y', 0.01974)
-	LETTER('z', 0.00074)
-}
 
 static double english_freq_bhattacharyya_score(const uint8_t *ciphertext,
 					       const size_t len)
@@ -116,7 +70,7 @@ int main(int argc, char *argv[])
 		goto exit;
 	}
 
-	initialize_english_freq_table();
+	cpal_analysis_init_english_probabilities(ENGLISH_FREQ_TABLE);
 
 	for (unsigned int key = 0; key < scores_len; key++) {
 		uint8_t kval = (uint8_t)key;
