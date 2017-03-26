@@ -2,7 +2,8 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-OBJS_$(d)	:= $(d)/src/rfc4648_encoding.o $(d)/src/cipher_xor.o
+OBJS_$(d)	:= $(d)/src/rfc4648_encoding.o $(d)/src/cipher_xor.o \
+		   $(d)/src/utils_analysis.o $(d)/src/utils_string.o
 DEPS_$(d)	:= $(OBJS_$(d):%=%.d)
 
 CLEAN		:= $(CLEAN) $(OBJS_$(d)) $(DEPS_$(d)) \

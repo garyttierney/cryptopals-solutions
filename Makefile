@@ -9,7 +9,7 @@ CF_ALL          = -Wno-missing-braces -Wextra -Wno-missing-field-initializers -W
 		  -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 
 LF_ALL          =
-LL_ALL          =
+LL_ALL          = -lm
 
 CC              = build/ccd-gcc
 COMP            = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<

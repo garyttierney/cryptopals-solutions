@@ -8,6 +8,9 @@ include		$(dir)/Rules.mk
 dir	:= $(d)/challenge2
 include		$(dir)/Rules.mk
 
+dir	:= $(d)/challenge3
+include		$(dir)/Rules.mk
+
 -include	$(DEPS_$(d))
 
 d		:= $(dirstack_$(sp))
